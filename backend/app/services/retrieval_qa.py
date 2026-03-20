@@ -62,8 +62,24 @@ def answer_query_stream(query: str, chat_history: list = None, filter_doc_id: st
     """
     vector_store = get_vector_store()
     
+    # Safely determine collection size to prevent ChromaDB from crashing
+    # if `fetch_k` exceeds the total number of chunks.
+    try:
+        total_docs = vector_store._collection.count()
+    except Exception:
+        total_docs = 5
+        
+    if total_docs == 0:
+        yield json.dumps({"type": "chunk", "content": "Please upload a document first!"}) + "\n"
+        return
+
     # Advanced Retrieval: MMR algorithm + Dynamic Metadata Filtering
-    search_kwargs = {"k": 5, "fetch_k": 20, "lambda_mult": 0.7}
+    search_kwargs = {
+        "k": min(5, total_docs), 
+        "fetch_k": min(20, total_docs), 
+        "lambda_mult": 0.7
+    }
+    
     if filter_doc_id:
         search_kwargs["filter"] = {"document_id": filter_doc_id}
         

@@ -14,7 +14,9 @@ const ChatWindow = ({ documentId }) => {
     setLoading(true);
 
     try {
-      const API_BASE = import.meta.env.VITE_API_URL ? `https://${import.meta.env.VITE_API_URL}` : 'http://localhost:8000';
+      const envUrl = import.meta.env.VITE_API_URL;
+      const API_BASE = envUrl ? (envUrl.startsWith('http') ? envUrl : `https://${envUrl}`) : 'http://localhost:8000';
+      
       const resp = await fetch(`${API_BASE}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -35,7 +37,7 @@ const ChatWindow = ({ documentId }) => {
         if (done) break;
         
         const chunkStr = decoder.decode(value, { stream: true });
-        const lines = chunkStr.split('\\n').filter(l => l.trim() !== '');
+        const lines = chunkStr.split('\n').filter(l => l.trim() !== '');
         
         for (const line of lines) {
             try {

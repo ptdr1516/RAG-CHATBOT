@@ -14,7 +14,8 @@ const UploadModal = ({ onUploadSuccess }) => {
     formData.append('file', file);
     
     try {
-      const API_BASE = import.meta.env.VITE_API_URL ? `https://${import.meta.env.VITE_API_URL}` : 'http://localhost:8000';
+      const envUrl = import.meta.env.VITE_API_URL;
+      const API_BASE = envUrl ? (envUrl.startsWith('http') ? envUrl : `https://${envUrl}`) : 'http://localhost:8000';
       const resp = await fetch(`${API_BASE}/api/upload`, {
         method: 'POST',
         body: formData
