@@ -48,10 +48,16 @@ def stream_openrouter_api(messages: list) -> Generator[str, None, None]:
                         break
                     try:
                         payload = json.loads(data_str)
-                        delta = payload.get("choices", [{}])[0].get("delta", {}).get("content", "")
-                        if delta:
-                            yield delta
-                    except json.JSONDecodeError:
+                        if "error" in payload:
+                            yield f"\\n\\n[OpenRouter Error: {payload['error'].get('message', 'Unknown Error')}]"
+                            break
+                            
+                        choices = payload.get("choices", [])
+                        if choices and len(choices) > 0:
+                            delta = choices[0].get("delta", {}).get("content", "")
+                            if delta:
+                                yield delta
+                    except Exception:
                         continue
     except Exception as e:
         yield f"\n\n[System Error: LLM Connection Failed - {str(e)}]"
