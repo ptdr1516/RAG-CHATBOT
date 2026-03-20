@@ -19,8 +19,9 @@ services:
   # -------------------------------------
   # 2. React Frontend (Static Site via CDN)
   # -------------------------------------
-  - type: static_site
+  - type: web
     name: rag-frontend
+    env: static
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
